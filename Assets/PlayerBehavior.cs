@@ -5,27 +5,27 @@ using UnityEngine;
 public class PlayerBehavior : MonoBehaviour
 {
     public float moveSpeed = 10f;
-    public float rotateSpeed = 60f;
-    private float _vInput;
-    private float _hInput;
-    private Rigidbody _rb;
+    public float rotateSpeed = 120f;
+    private float vInput;
+    private float hInput;
+    private Rigidbody rb;
 
     void Start()
     {
-        _rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        _vInput = Input.GetAxis("Vertical") * moveSpeed;
-        _hInput = Input.GetAxis("Horizontal") * rotateSpeed;
+        vInput = Input.GetAxis("Vertical") * moveSpeed;
+        hInput = Input.GetAxis("Horizontal") * rotateSpeed;
     }
 
     private void FixedUpdate()
     {
-        Vector3 rotation = Vector3.up * _hInput;
+        Vector3 rotation = Vector3.up * hInput;
         Quaternion anglRot = Quaternion.Euler(rotation * Time.fixedDeltaTime);
-        _rb.MovePosition(this.transform.position + this.transform.forward * _vInput * Time.fixedDeltaTime);
-        _rb.MoveRotation(_rb.rotation * anglRot);  
+        rb.MovePosition(this.transform.position + this.transform.forward * vInput * Time.fixedDeltaTime);
+        rb.MoveRotation(rb.rotation * anglRot);  
     }
 }

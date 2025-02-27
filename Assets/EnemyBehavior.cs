@@ -5,25 +5,38 @@ using UnityEngine.AI;
 
 public class EnemyBehavior : MonoBehaviour
 {
-    public NavMeshAgent agent;
-    public float wanderTime = 5f;
-    public float wanderRadius = 20f;
-    private float timeTillWander = 0f;
+    public GameObject enemy;
+    public GameObject player;
+    public GameObject[] patrolPoints;
+    private NavMeshAgent agent;
+    private Vector3 lastKnownPosition;
+    private float wanderRadius = 10f;
+    private float sawPlayer = 0f;
+
     
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        agent = enemy.GetComponent<NavMeshAgent>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        timeTillWander -= Time.deltaTime;
+        Debug.Log(sawPlayer);
 
-        if (timeTillWander < 0f || agent.remainingDistance == 0f)
+        if (Vector3.Distance(enemy.transform.position, player.transform.position) < 10)
         {
+            lastKnownPosition = player.transform.position;
+            agent.SetDestination(lastKnownPosition);
+            enemy.GetComponent<Renderer>().material.color = Color.yellow;
+            sawPlayer = 3f;
+        }
+        else if (sawPlayer > 0f && agent.remainingDistance < 1)
+        {
+            enemy.GetComponent<Renderer>().material.color = Color.red;
+
             Vector3 randomPosition = Random.insideUnitSphere * wanderRadius;
-            randomPosition += transform.position;
+            randomPosition += lastKnownPosition;
 
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPosition, out hit, wanderRadius, NavMesh.AllAreas))
@@ -31,7 +44,11 @@ public class EnemyBehavior : MonoBehaviour
                 agent.SetDestination(hit.position);
             }
 
-            timeTillWander = wanderTime;
+            sawPlayer -= 1f;
+        }
+        else if (sawPlayer == 0f && agent.remainingDistance < 1)
+        {
+            agent.SetDestination(patrolPoints[Random.Range(0, 4)].transform.position);
         }
     }
 
